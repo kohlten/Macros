@@ -1,0 +1,82 @@
+import sys, pykeyboard
+from keyboard import wait
+from time import sleep
+from logging import critical
+
+help = '''____Macro Machine___ \n
+Made By: Alexander Strole on 10/11/2017
+Version: 1.0
+
+________________________________________
+
+TODO:
+    Add a GUI
+    Add support for traditional macros
+    
+Please give suggestions as you see fit.
+
+_______________________________________
+
+Command help:
+    macros key phrase times activateKey
+    
+    key = key to press to output the text
+    phrase = the phrase you want to output. Spaces need to be replaced with a underscore. 
+    times = times to repeat the phrase
+    activateKey = key to activate the program. Optional. It is ' by default.'''
+
+#Getting the arguments from the command line
+args = sys.argv
+
+#Checking if all the variables are there
+if len(args) < 3:
+    print(help)
+    sys.exit(0)
+
+activateKey = "'"
+
+key = args[1]
+
+if len(key) > 1:
+    raise SystemExit, "ERROR: Cannot bind to multiple keys, please only input one letter! " + key
+
+phrase = args[2] + ' '
+
+if len(phrase) < 2:
+    raise SystemExit, "ERROR: Cannot type nothing! " + phrase
+
+#Replacing underscores with spaces
+if '_' in phrase:
+    phrase = phrase.replace("_", " ")
+
+#Changing the string to a number
+try:
+    times = int(args[3])
+except ValueError:
+    raise SystemExit, "ERROR: Cannot convert times to a number!"
+
+if len(args) > 4:
+    activateKey = args[4]
+
+activated = False
+
+k = pykeyboard.PyKeyboard()
+
+def write():
+	#If user pressed the activated key and the write key, write the phrase
+    global activated
+    k.tap_key(k.enter_key)
+    for i in range(times):
+        for letter in phrase:
+            k.tap_key(letter)
+            sleep(0.0015)
+
+while True:
+	#Checking if the user pressed the activated key and the write key
+    if activated:
+        wait(key)
+        write()
+    else:
+        wait(activateKey)
+        activated = True
+
